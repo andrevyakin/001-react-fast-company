@@ -6,8 +6,8 @@ const Users = ({users, ...rest}) => {
     const rowColor = index => rowsColor.length > index ? rowsColor[index] : rowsColor[index - rowsColor.length];
 
     return (
-        <>
-            {users.length && (
+        !users.length ? <></> :
+            <>
                 <table className='table'>
                     <thead>
                     <tr className='table-dark'>
@@ -29,8 +29,7 @@ const Users = ({users, ...rest}) => {
                     ))}
                     </tbody>
                 </table>
-            )}
-        </>
+            </>
     );
 }
 
