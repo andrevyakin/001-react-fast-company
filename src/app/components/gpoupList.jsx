@@ -9,17 +9,17 @@ const GroupList = ({ items, valueProperty, contentProperty, onItemSelect }) => {
             <h2 className={'d-flex justify-content-center mb-lg-2'}>
                 <span className={'badge bg-primary'}>Профессия</span>
             </h2>
-            <div className="list-group">
+            <div className='list-group'>
                 {convertToArray(items).map((item, index) => (
                     <a
-                        href="#"
+                        href='#'
                         key={item[valueProperty]}
                         className={
                             'list-group-item list-group-item-action list-group-item-' +
                             rowColor(index)
                         }
                         onClick={() => onItemSelect(item)}
-                        role="button"
+                        role='button'
                     >
                         {item[contentProperty]}
                     </a>
