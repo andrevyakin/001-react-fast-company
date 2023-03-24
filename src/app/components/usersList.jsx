@@ -25,6 +25,7 @@ const UsersList = () => {
     // вдруг юзер захочет встретиться с тем, чьи данные прийду первыми.
     // Поэтому path: 'undefined'
     const [sortBy, setSortBy] = useState({ path: 'undefined', order: 'asc' });
+    const [searchBar, setSearchBar] = useState('');
     const pageSize = 8;
     // Сохраняю измененное состояние в sessionStorage
     useEffect(() => {
@@ -64,6 +65,9 @@ const UsersList = () => {
         setUsers(newArray);
     };
     const handleProfessionsSelect = (item) => {
+         if (searchBar !== '') {
+            setSearchBar('');
+        }
         setSelectedProf(item);
     };
     const handlePageChange = (pageIndex) => {
@@ -72,6 +76,10 @@ const UsersList = () => {
     const handleSort = (item) => {
         setSortBy(item);
     };
+    const handleSearchBar = ({ target }) => {
+        setSelectedProf(0);
+        setSearchBar(target.value);
+    };
     // Если обернуть в иф код, как в видеоуроке, захватывая ретурн,
     // не будет работать юзеэффект, который ниже (в видеоуроке его нет, там этот момент 'заметен под ковер'),
     // так как хук юзеэффект, как я понял, не работает в ифах, внутри других фунуций и после ретурна,
@@ -79,7 +87,14 @@ const UsersList = () => {
     // и вынес filteredUsers за пределы видимости ифа, поскольку эта переменная понадобится после ифа
     let filteredUsers = [];
     if (users) {
-        filteredUsers = selectedProf
+        filteredUsers = searchBar
+            ? users.filter(
+                (user) =>
+                    user.name
+                        .toLowerCase()
+                        .indexOf(searchBar.toLowerCase()) !== -1
+            )
+            : selectedProf
             ? users.filter(
                 (user) =>
                     JSON.stringify(user.profession) ===
@@ -105,7 +120,7 @@ const UsersList = () => {
     }, [currentPage, count]);
     return !users
         ? <h1>Loading...</h1>
-        : !count
+        : (!count && searchBar === '')
             ? <SearchStatus length={count} />
             : (
                 <div className='d-flex'>
@@ -128,6 +143,15 @@ const UsersList = () => {
                     </div>
                     <div className='flex-fill'>
                         <SearchStatus length={count} />
+                        <div className='d-flex flex-column flex-shrink-0 mb-2'>
+                            <input
+                                type='text'
+                                name='searchBar'
+                                placeholder='Найти...'
+                                onChange={handleSearchBar}
+                                value={searchBar}
+                            />
+                        </div>
                         <UsersTable
                             users={usersCrop}
                             onSort={handleSort}
