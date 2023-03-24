@@ -80,14 +80,8 @@ const UsersList = () => {
         setSelectedProf(0);
         setSearchBar(target.value);
     };
-    // Если обернуть в иф код, как в видеоуроке, захватывая ретурн,
-    // не будет работать юзеэффект, который ниже (в видеоуроке его нет, там этот момент 'заметен под ковер'),
-    // так как хук юзеэффект, как я понял, не работает в ифах, внутри других фунуций и после ретурна,
-    // поэтому я обернул в иф только часть кода, где users === undefined вызывает ошибку
-    // и вынес filteredUsers за пределы видимости ифа, поскольку эта переменная понадобится после ифа
-    let filteredUsers = [];
     if (users) {
-        filteredUsers = searchBar
+        const filteredUsers = searchBar
             ? users.filter(
                 (user) =>
                     user.name
@@ -95,81 +89,72 @@ const UsersList = () => {
                         .indexOf(searchBar.toLowerCase()) !== -1
             )
             : selectedProf
-            ? users.filter(
-                (user) =>
-                    JSON.stringify(user.profession) ===
-                    JSON.stringify(selectedProf)
-            )
-            : users;
-    }
-    const count = filteredUsers.length;
-    const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
-    const usersCrop = paginate(sortedUsers, currentPage, pageSize);
-    const clearFilter = () => {
-        setCurrentPage(1);
-        setSelectedProf(0);
-    };
-    // Если перейти на последнюю страницу и удалить на ней все элементы,
-    // то будет отображаться таблица без элементов.
-    // Эта функция переключает отображенние на последнбюю страницу с элементами,
-    // после удаления всех элементов последней страницы
-    useEffect(() => {
-        if (Math.ceil(count / pageSize) < currentPage) {
-            setCurrentPage(currentPage - 1);
-        }
-    }, [currentPage, count]);
-    return !users
-        ? <h1>Loading...</h1>
-        : (!count && searchBar === '')
-            ? <SearchStatus length={count} />
-            : (
-                <div className='d-flex'>
-                    {/* Убрал проверки на professions и count, которые есть в видеоуроке,
+                ? users.filter(
+                    (user) =>
+                        JSON.stringify(user.profession) ===
+                        JSON.stringify(selectedProf)
+                )
+                : users;
+
+        const count = filteredUsers.length;
+        const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
+        const usersCrop = paginate(sortedUsers, currentPage, pageSize);
+        const clearFilter = () => {
+            setCurrentPage(1);
+            setSelectedProf(0);
+        };
+        return !count && searchBar === ''
+                ? <SearchStatus length={count}/>
+                : (
+                    <div className='d-flex'>
+                        {/* Убрал проверки на professions и count, которые есть в видеоуроке,
               по-моему в такой редакции кода они излишни,
               так как выше есть проверка на count и на users, а если
               получен users то и professions получен тоже */}
-                    <div className='d-flex flex-column flex-shrink-0 p-3'>
-                        <GroupList
-                            selectedItem={selectedProf}
-                            items={professions}
-                            onItemSelect={handleProfessionsSelect}
-                        />
-                        <button
-                            className='btn btn-secondary mt-2'
-                            onClick={clearFilter}
-                        >
-                            Очистить
-                        </button>
-                    </div>
-                    <div className='flex-fill'>
-                        <SearchStatus length={count} />
-                        <div className='d-flex flex-column flex-shrink-0 mb-2'>
-                            <input
-                                type='text'
-                                name='searchBar'
-                                placeholder='Найти...'
-                                onChange={handleSearchBar}
-                                value={searchBar}
+                        <div className='d-flex flex-column flex-shrink-0 p-3'>
+                            <GroupList
+                                selectedItem={selectedProf}
+                                items={professions}
+                                onItemSelect={handleProfessionsSelect}
                             />
+                            <button
+                                className='btn btn-secondary mt-2'
+                                onClick={clearFilter}
+                            >
+                                Очистить
+                            </button>
                         </div>
-                        <UsersTable
-                            users={usersCrop}
-                            onSort={handleSort}
-                            selectedSort={sortBy}
-                            onDelete={handleDelete}
-                            onToggleBookMark={handleToggleBookMark}
-                        />
-                        <div className='d-flex justify-content-center'>
-                            <Pagination
-                                itemCount={count}
-                                pageSize={pageSize}
-                                currentPage={currentPage}
-                                onPageChange={handlePageChange}
+                        <div className='flex-fill'>
+                            <SearchStatus length={count}/>
+                            <div className='d-flex flex-column flex-shrink-0 mb-2'>
+                                <input
+                                    type='text'
+                                    name='searchBar'
+                                    placeholder='Найти...'
+                                    onChange={handleSearchBar}
+                                    value={searchBar}
+                                />
+                            </div>
+                            <UsersTable
+                                users={usersCrop}
+                                onSort={handleSort}
+                                selectedSort={sortBy}
+                                onDelete={handleDelete}
+                                onToggleBookMark={handleToggleBookMark}
                             />
+                            <div className='d-flex justify-content-center'>
+                                <Pagination
+                                    itemCount={count}
+                                    pageSize={pageSize}
+                                    currentPage={currentPage}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-            );
+                );
+    }
+    return <h1>Loading...</h1>;
 };
 UsersList.propTypes = {
     users: PropTypes.array
